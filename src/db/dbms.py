@@ -4,7 +4,6 @@ from typing import Any, Iterable, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, PostgresDsn
-from pydantic.json import ENCODERS_BY_TYPE
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -45,7 +44,7 @@ class ManagerBase:
         if not isinstance(data_update, dict):
             data_update = data_update.dict(exclude_unset=True)
 
-        for field in jsonable_encoder(data_update, custom_encoder=CUSTOM_ENCODERS_BY_TYPE):
+        for field in jsonable_encoder(data_update):
             setattr(instance, field, data_update.get(field))
 
         self.session.add(instance)
@@ -54,7 +53,7 @@ class ManagerBase:
         return instance
 
     async def create(self, model: Type[ModelType], data_create: CreateSchemaType):
-        data_create = jsonable_encoder(data_create, custom_encoder=CUSTOM_ENCODERS_BY_TYPE)
+        data_create = jsonable_encoder(data_create)
         instance = model(**data_create)
         self.session.add(instance)
         await self.session.commit()
