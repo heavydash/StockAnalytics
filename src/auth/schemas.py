@@ -3,16 +3,18 @@ from typing import Optional, List
 from pydantic import BaseModel, ValidationError, validator
 
 
-
 class RegistrationIn(BaseModel):
     email: str
     username: str
-    password: str
+    hashed_password: str
 
-    @validator('password')
+    @validator('hashed_password')
+    @classmethod
     def validate_password(cls, value: str) -> str:
         if len(value) <= 8:
             raise ValidationError()
         return value
 
-
+class LoginIn(BaseModel):
+    email: str
+    hashed_password: str
