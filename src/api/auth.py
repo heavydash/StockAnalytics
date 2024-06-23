@@ -4,12 +4,14 @@ from starlette import status as http_status
 from databases import Database
 from sqlalchemy import insert, select
 
-from auth.schemas import RegistrationIn, LoginIn
+from auth.schemas import RegistrationIn, LoginIn, LoginOut
 from models.models import user
+from config import settings
+from auth.token import create_jwt_token
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost/postgres"
+DATABASE_URL = f"postgresql://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}/{settings.DB_NAME}"
 
 
 async def create_user(data: dict, database: Database):
@@ -47,7 +49,8 @@ async def register_in(data: RegistrationIn, database: Database = Depends(get_dat
 @router.post(
     path='/login',
     name='Login user',
-    status_code=http_status.HTTP_200_OK
+    status_code=http_status.HTTP_200_OK,
+    response_model=LoginOut
 )
 async def login_in(data: LoginIn, database: Database = Depends(get_database)):
     #try:
@@ -58,3 +61,7 @@ async def login_in(data: LoginIn, database: Database = Depends(get_database)):
         raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail="Invalid email or password")
     # except Exception as e:
     #     raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail=str(e))
+    token = create_jwt_token(db_user.id, db_user.email)
+    print(token)
+    return LoginOut(token=token)
+

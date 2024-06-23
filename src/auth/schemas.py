@@ -18,3 +18,6 @@ class RegistrationIn(BaseModel):
 class LoginIn(BaseModel):
     email: str
     hashed_password: str
+
+class LoginOut(BaseModel):
+    token: str
