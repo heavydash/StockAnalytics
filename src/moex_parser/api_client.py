@@ -21,6 +21,4 @@ class MoexClient:
         return self.get(self._construct_security_trade_url(security_name)).json()
 
 
-moex_client = MoexClient()
-response = moex_client.get_security_trades('SU29024RMFS5')
-print(response)
+

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_LIFETIME: int   # в минутах
     JWT_ALGORITHM: str
+    AUTH_FREE_PATHS: list = ["/docs", "/api/auth/login", "/api/auth/register", "/openapi.json"]
 
     class Config:
         env_file = "../.env"
@@ -23,3 +24,4 @@ def get_settings():
     return Settings()
 
 settings = get_settings()
+

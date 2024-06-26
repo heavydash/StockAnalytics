@@ -15,6 +15,3 @@ def create_jwt_token(user_id: int, email: str, secret_key: str = settings.JWT_SE
     token = jwt.encode(payload, secret_key, settings.JWT_ALGORITHM)
 
     return token
-
-token = create_jwt_token(1, "user@example.com")
-print(token)

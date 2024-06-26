@@ -53,15 +53,11 @@ async def register_in(data: RegistrationIn, database: Database = Depends(get_dat
     response_model=LoginOut
 )
 async def login_in(data: LoginIn, database: Database = Depends(get_database)):
-    #try:
     db_user = await get_user(data.email, database)
     if db_user is None:
         raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail="Invalid email or password")
     if not is_password_valid(data.hashed_password, db_user.hashed_password):
         raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail="Invalid email or password")
-    # except Exception as e:
-    #     raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail=str(e))
     token = create_jwt_token(db_user.id, db_user.email)
-    print(token)
     return LoginOut(token=token)
 
