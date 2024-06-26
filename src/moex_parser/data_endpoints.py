@@ -48,7 +48,6 @@ async def get_security(name: str, database: Database):
 )
 async def create_security_trade_endpoint(data: SecurityTradeOut, request: Request, database: Database = Depends(get_database)):
     user = await get_user(request.state.user.get("email"), database)
-    print(user.role_id)
     if user.role_id != 2:
         raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN)
     try:
