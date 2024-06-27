@@ -60,4 +60,3 @@ async def login_in(data: LoginIn, database: Database = Depends(get_database)):
         raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail="Invalid email or password")
     token = create_jwt_token(db_user.id, db_user.email)
     return LoginOut(token=token)
-

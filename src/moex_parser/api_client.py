@@ -19,6 +19,3 @@ class MoexClient:
 
     def get_security_trades(self, security_name: str) -> dict:
         return self.get(self._construct_security_trade_url(security_name)).json()
-
-
-
