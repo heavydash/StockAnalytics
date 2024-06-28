@@ -6,7 +6,7 @@ from sqlalchemy import select, insert
 
 from config import settings
 from models.models import security_trades, security
-from moex_parser.schemas import SecurityOut, SecurityTradeOut
+from moex_parser.schemas import SecurityTradeOut
 from api.auth import get_user
 
 router = APIRouter(tags=['data'])
@@ -46,7 +46,8 @@ async def get_security(name: str, database: Database):
     status_code=http_status.HTTP_201_CREATED,
     response_model=SecurityTradeOut
 )
-async def create_security_trade_endpoint(data: SecurityTradeOut, request: Request, database: Database = Depends(get_database)):
+async def create_security_trade_endpoint(data: SecurityTradeOut, request: Request,
+                                         database: Database = Depends(get_database)):
     user = await get_user(request.state.user.get("email"), database)
     if user.role_id != 2:
         raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN)
@@ -66,29 +67,3 @@ async def get_security_trade_endpoint(trade_number: int, database: Database = De
     if trade is None:
         raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail="Trade not found")
     return trade
-
-@router.post(
-    path='/security',
-    name='Create new security',
-    status_code=http_status.HTTP_201_CREATED
-)
-async def create_security_endpoint(data: dict, database: Database = Depends(get_database)):
-    try:
-        await create_security(data, database)
-    except Exception as e:
-        raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-
-@router.get(
-    path='/security/{name}',
-    name='Get security by name',
-    status_code=http_status.HTTP_200_OK,
-    response_model=SecurityOut,
-)
-async def get_security_endpoint(name: str, database: Database = Depends(get_database)):
-    sec = await get_security(name, database)
-    if sec is None:
-        raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail="Security not found")
-    return security
-
-

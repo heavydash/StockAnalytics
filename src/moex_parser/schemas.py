@@ -71,8 +71,4 @@ class SecurityIn(BaseModel):
         return v
 
 
-class SecurityOut(BaseModel):
-    NAME: str
 
-    class Config:
-        orm_mode = True

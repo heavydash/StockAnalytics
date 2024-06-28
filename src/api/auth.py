@@ -8,6 +8,7 @@ from auth.schemas import RegistrationIn, LoginIn, LoginOut
 from models.models import user
 from config import settings
 from auth.token import create_jwt_token
+from auth.security import hash_password, verify_password
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
@@ -15,7 +16,11 @@ DATABASE_URL = f"postgresql://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB
 
 
 async def create_user(data: dict, database: Database):
-    query = insert(user).values(**data, is_active=True, is_verified=False, is_superuser=False)
+    password = data.pop("password")
+    hashed_password = hash_password(password)
+    query = insert(user).values(
+        **data, hashed_password=hashed_password, is_active=True, is_verified=False, is_superuser=False
+    )
     await database.execute(query)
 
 async def get_user(email: str, database: Database):
@@ -56,7 +61,8 @@ async def login_in(data: LoginIn, database: Database = Depends(get_database)):
     db_user = await get_user(data.email, database)
     if db_user is None:
         raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail="Invalid email or password")
-    if not is_password_valid(data.hashed_password, db_user.hashed_password):
+    #if not is_password_valid(hash_password(data.password), db_user.hashed_password):
+    if not verify_password(data.password, db_user.hashed_password):
         raise HTTPException(status_code=http_status.HTTP_400_BAD_REQUEST, detail="Invalid email or password")
     token = create_jwt_token(db_user.id, db_user.email)
     return LoginOut(token=token)
